@@ -2,6 +2,11 @@
 import React from "react";
 
 import Link from "next/link";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 import {
   Card,
@@ -20,12 +25,15 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import Navbar from "../navbar/Navbar";
-import { useGetSellerLast7DaysOrders } from "@/hooks/useGetUser";
+import {
+  useGetSellerLast7DaysOrders,
+  useGetRecentOrders,
+} from "@/hooks/useGetUser";
 import Loading from "../Loading";
 
 function DashBoardRender({ address }: { address: string }) {
   const { data, isLoading } = useGetSellerLast7DaysOrders(address);
-
+  console.log(data);
   if (isLoading) {
     return <Loading />;
   }
@@ -41,29 +49,29 @@ function DashBoardRender({ address }: { address: string }) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle>Total Revenue</CardTitle>
+                  <CardTitle>Expected Revenue</CardTitle>
                   <CardDescription className="text-4xl font-bold">
-                    $42,325
+                    ${data?.finalTotalPrice || 0} SOL
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ArrowUpIcon className="h-4 w-4 fill-primary" />
-                    <span>+15% from last month</span>
+                    <span>Last 7 days Revunue</span>
                   </div>
                 </CardFooter>
               </Card>
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle>New Orders</CardTitle>
+                  <CardTitle>Today's Order</CardTitle>
                   <CardDescription className="text-4xl font-bold">
-                    124
+                    {data?.dailyCounts[data.dailyCounts.length - 1].orders || 0}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ArrowUpIcon className="h-4 w-4 fill-primary" />
-                    <span>+10% from last month</span>
+                    <span>+10% from last Day</span>
                   </div>
                 </CardFooter>
               </Card>
@@ -90,20 +98,7 @@ function DashBoardRender({ address }: { address: string }) {
                     </TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      #3203
-                    </TableCell>
-                    <TableCell className="text-right">Lisa Anderson</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      #3203
-                    </TableCell>
-                    <TableCell className="text-right">Lisa Anderson</TableCell>
-                  </TableRow>
-                </TableBody>
+                <TableBodyView address={address} />
               </Table>
             </div>
           </div>
@@ -114,6 +109,52 @@ function DashBoardRender({ address }: { address: string }) {
 }
 
 export default DashBoardRender;
+
+function TableBodyView({ address }: { address: string }) {
+  const { data, isLoading } = useGetRecentOrders(address);
+
+  if (!data) {
+    return <>h1 nothing to show</>;
+  }
+
+  return (
+    <>
+      {data.length > 0 ? (
+        <TableBody>
+          {data.map((data) => (
+            <TableRowView
+              key={data.id}
+              name={data.name}
+              sender={data.buyerWallet}
+            />
+          ))}
+        </TableBody>
+      ) : (
+        <>
+          <TableRow className="text-center">Empty</TableRow>
+        </>
+      )}
+    </>
+  );
+}
+
+function TableRowView({ sender, name }: { sender: string; name: string }) {
+  return (
+    <>
+      <TableRow>
+        <TableCell className="font-medium text-left max-w-2 overflow-hidden">
+          <HoverCard>
+            <HoverCardTrigger>{sender}</HoverCardTrigger>
+            <HoverCardContent side="left" className="p-3 w-full">
+              {sender}
+            </HoverCardContent>
+          </HoverCard>
+        </TableCell>
+        <TableCell className="text-right">{name}</TableCell>
+      </TableRow>
+    </>
+  );
+}
 
 function ArrowUpIcon(props: any) {
   return (

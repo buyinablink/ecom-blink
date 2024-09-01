@@ -11,7 +11,7 @@ export default function Products({ address }: { address: string }) {
   const { data, isLoading } = useGetSellerProducts(address);
 
   useEffect(() => {
-    console.log(address)
+    console.log(address);
     if (data && !data.err && data.data) {
       setProducts(data.data);
     }
@@ -20,9 +20,11 @@ export default function Products({ address }: { address: string }) {
   if (isLoading) {
     return <Loading />;
   }
+
+  console.log(products);
   return (
     <Fragment>
-      <div className="hidden">{doNothing}</div>      
+      <div className="hidden">{doNothing}</div>
       <Navbar />
       <>
         <div className="grid grid-cols-3 justify-center m-5">
@@ -33,7 +35,11 @@ export default function Products({ address }: { address: string }) {
           <div className="justify-self-end"></div>
         </div>
         <div className="flex justify-center m-4">
-          <ProductsDataRender products={products} setDoNothing={setDoNothing}/>
+          <ProductsDataRender
+            products={products}
+            setDoNothing={setDoNothing}
+            setProducts={setProducts}
+          />
         </div>
       </>
       )
@@ -41,11 +47,11 @@ export default function Products({ address }: { address: string }) {
   );
 }
 
-function ProductsDataRender({ products, setDoNothing }: any) {
+function ProductsDataRender({ products, setDoNothing, setProducts }: any) {
   return (
     <>
       <div className="grid gap-4 justify-center md:justify-start grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {products ?
+        {products ? (
           products.map((product: any) => (
             <Product
               key={product.id}
@@ -57,10 +63,14 @@ function ProductsDataRender({ products, setDoNothing }: any) {
               name={product.name}
               id={product.id}
               label={product.label}
-              setDoNothing = {setDoNothing}
+              setDoNothing={setDoNothing}
+              setProducts={setProducts}
             />
-          )) : <div className="text-2xl text-center">No Products Found</div>}
-          <AddNewProduct />
+          ))
+        ) : (
+          <div className="text-2xl text-center">No Products Found</div>
+        )}
+        <AddNewProduct />
       </div>
     </>
   );

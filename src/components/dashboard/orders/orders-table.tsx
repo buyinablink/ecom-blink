@@ -68,7 +68,7 @@ export default function Orders() {
     };
 
     fetchOrders();
-  }, [publicKey]);
+  }, [publicKey, connected]);
 
   const updateOrderStatus1 = async (
     orderId: string,
@@ -202,8 +202,13 @@ export default function Orders() {
                   <TableCell>{order.name}</TableCell>
                   <TableCell>{order.buyerWallet}</TableCell>
                   <TableCell>
-                    <span className="uppercase font-bold">$SOL</span>{" "}
                     {order.product.price}
+                    <span
+                      className="uppercase font-bold ml-1
+                    "
+                    >
+                      $SOL
+                    </span>{" "}
                   </TableCell>
                   <TableCell>
                     <Popover>

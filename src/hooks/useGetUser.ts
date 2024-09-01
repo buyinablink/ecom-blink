@@ -1,5 +1,6 @@
 import {
   getAllProducts,
+  getRecentOrders,
   getSellerBlink,
   getSellerOrdersOf7Days,
   getTheUser,
@@ -45,6 +46,17 @@ export const useGetSellerLast7DaysOrders = (address: string) => {
     queryFn: async () => {
       const orders = await getSellerOrdersOf7Days(address);
       return orders;
+    },
+    enabled: !!address,
+  });
+};
+
+export const useGetRecentOrders = (address: string) => {
+  return useQuery({
+    queryKey: ["seller-recent-orders", address],
+    queryFn: async () => {
+      const orders = await getRecentOrders(address);
+      return orders.data;
     },
     enabled: !!address,
   });

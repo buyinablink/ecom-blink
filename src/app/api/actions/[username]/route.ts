@@ -51,7 +51,6 @@ export const GET = async (
 
     const payload: ActionGetResponse = {
       icon: seller.blink.icon,
-      // icon: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJvaGNnMXBtbmp4bjJ0NXlqYmFvaWlhamlqbWs3dXJqeG42emdpcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/fVWFdoP5SoThCSQOpb/giphy-downsized-large.gif",
       title: seller.blink.title,
       label: seller.blink.label,
       description: seller.blink.description,
@@ -159,22 +158,48 @@ export const POST = async (req: Request, { params }: any) => {
     };
     // let nextLink: NextActionLink;
     if (route == "products") {
-      nextLink = {
-        type: "inline",
-        action: {
-          icon: seller.blink.icon,
-          description: seller.blink.description,
-          label: seller.blink.label,
-          title: seller.blink.title,
-          type: "action",
-          links: {
-            actions: products.map((data) => ({
-              label: `${data.name}`,
-              href: `/api/actions/${params.username}/product/${data.id}`,
-            })),
+      if (products.length == 0) {
+        nextLink = {
+          type: "inline",
+          action: {
+            type: "completed",
+            icon: "https://imgs.search.brave.com/mTigptQqts4F_6klqySaDOFw3rN35C_WULPGgqdB1Jg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTMy/NjE5NjkyMS9waG90/by9vcGVuZWQtZW1w/dHktY2FyZGJvYXJk/LWJveC1vbi1ncmVl/bi5qcGc_cz02MTJ4/NjEyJnc9MCZrPTIw/JmM9d1k3eUpiZjFB/WDhuLXNMb2lpRHNI/c1pfS2RBRXpGdW40/RWpoczJnQXZhWT0",
+            title: "Products Empty",
+            description: "This Seller is not selling anything .....",
+            label: "nothing to show here",
           },
-        },
-      };
+        };
+      } else {
+        nextLink = {
+          type: "inline",
+          action: {
+            icon: seller.blink.icon,
+            description: seller.blink.description,
+            label: seller.blink.label,
+            title: seller.blink.title,
+            type: "action",
+            links: {
+              actions: [
+                {
+                  href: `/api/actions/${params.username}/product/{productId}`,
+                  label: "Select Product",
+                  parameters: [
+                    {
+                      type: "select",
+                      name: "productId",
+                      label: "select the product",
+                      options: products.map((data) => ({
+                        label: `${data.name}`,
+                        value: `${data.id}`,
+                      })),
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        };
+      }
     } else if (route == "orders") {
       if (orders.length == 0) {
         nextLink = {
@@ -198,10 +223,27 @@ export const POST = async (req: Request, { params }: any) => {
             title: "Check out your orders",
             type: "action",
             links: {
-              actions: orders.map((data) => ({
-                href: `/api/actions/${params.username}/orders/${data.id}`,
-                label: `${data.product.name}`,
-              })),
+              // actions: orders.map((data) => ({
+              //   href: `/api/actions/${params.username}/orders/${data.id}`,
+              //   label: `${data.product.name}`,
+              // })),
+              actions: [
+                {
+                  href: `/api/actions/${params.username}/orders/{orderid}`,
+                  label: "Select Order",
+                  parameters: [
+                    {
+                      type: "select",
+                      name: "orderid",
+                      label: "select orders",
+                      options: orders.map((data) => ({
+                        label: `${data.product.name}`,
+                        value: `${data.id}`,
+                      })),
+                    },
+                  ],
+                },
+              ],
             },
           },
         };

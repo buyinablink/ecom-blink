@@ -467,12 +467,12 @@ export async function getSellerOrdersOf7Days(sellerAddress: string) {
   startDate.setDate(endDate.getDate() - 6); // 7 days including today
 
   // Initialize the result object with zero counts for each of the last 7 days
-  const result: { [key: string]: number } = {};
+  const result: { [key: string]: { count: number; totalPrice: number } } = {};
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
   days.forEach((day) => {
     const formattedDate = format(day, "yyyy-MM-dd");
-    result[formattedDate] = 0;
+    result[formattedDate] = { count: 0, totalPrice: 0 };
   });
 
   // Fetch orders for the specific seller within the last 7 days
@@ -484,24 +484,72 @@ export async function getSellerOrdersOf7Days(sellerAddress: string) {
         lte: endDate,
       },
     },
+    include: {
+      product: true,
+    },
   });
 
-  // Update the result object with the count of orders per day
-  let totalOrders = 0;
+  // Process each order to update counts and total prices
   orders.forEach((order) => {
-    const day = format(order.createdAt, "yyyy-MM-dd");
-    result[day] += 1;
-    totalOrders += 1;
+    const orderDate = format(order.createdAt, "yyyy-MM-dd"); // Format date to YYYY-MM-DD
+    const productPrice = parseFloat(order.product.price); // Parse the product price
+
+    if (!result[orderDate]) {
+      result[orderDate] = { count: 0, totalPrice: 0 };
+    }
+
+    // Increment the order count and total price for the respective day
+    result[orderDate].count += 1;
+    result[orderDate].totalPrice += productPrice;
   });
 
-  // Convert result object to the desired format
-  const formattedResult = Object.entries(result).map(([date, count]) => ({
+  // Calculate the total number of orders and the final total price for the entire week
+  const totalOrders = Object.values(result).reduce(
+    (sum, day) => sum + day.count,
+    0
+  );
+  const finalTotalPrice = Object.values(result).reduce(
+    (sum, day) => sum + day.totalPrice,
+    0
+  );
+
+  // Convert result object to the desired format for daily counts
+  const formattedResult = Object.entries(result).map(([date, data]) => ({
     date,
-    orders: count,
+    orders: data.count,
+    totalPrice: data.totalPrice,
   }));
 
   return {
     totalOrders,
     dailyCounts: formattedResult,
+    finalTotalPrice,
   };
+}
+
+export async function getRecentOrders(address: string) {
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        sellerId: address,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 5,
+    });
+
+    return {
+      msg: "Orders fetched successfully",
+      err: false,
+      data: orders,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      msg: "Error occurred",
+      err: true,
+      data: null,
+    };
+  }
 }

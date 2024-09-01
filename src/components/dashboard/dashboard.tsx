@@ -5,7 +5,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useGetSellerDetails } from "@/hooks/useGetUser";
 import { useRouter } from "next/navigation";
 import Loading from "../Loading";
-import { getSellerOrdersOf7Days } from "@/lib/action";
 import DashBoardRender from "./DashBoardRender";
 
 export default function DashboardComp({ address }: { address: string }) {
