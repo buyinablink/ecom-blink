@@ -63,7 +63,7 @@ function DashBoardRender({ address }: { address: string }) {
               </Card>
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle>Today's Order</CardTitle>
+                  <CardTitle>Today&apos;s Order</CardTitle>
                   <CardDescription className="text-4xl font-bold">
                     {data?.dailyCounts[data.dailyCounts.length - 1].orders || 0}
                   </CardDescription>
