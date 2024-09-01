@@ -441,6 +441,24 @@ export const getOrderBySeller = async (sellerId: string) => {
     };
   }
 };
+export const deleteProduct = async (productId: string) => {
+  try {
+    await prisma.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+    return {
+      msg: "product deleted successfully",
+      err: false,
+    };
+  } catch (error) {
+    return {
+      msg: "Something went wrong",
+      err: true,
+    };
+  }
+};
 
 export async function getSellerOrdersOf7Days(sellerAddress: string) {
   // Get today's date and the date 7 days ago
