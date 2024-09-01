@@ -31,7 +31,6 @@ import { getOrderBySeller, updateOrderStatus } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { OrderStatus, User, Product } from "@prisma/client";
-import prisma from "../../../../prisma";
 
 interface Order {
   id: string;
