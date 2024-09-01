@@ -7,6 +7,7 @@ import { useGetSellerProducts } from "@/hooks/useGetUser";
 
 export default function Products({ address }: { address: string }) {
   const [products, setProducts] = useState<any>(null);
+  const [doNothing, setDoNothing] = useState<any>(null);
   const { data, isLoading } = useGetSellerProducts(address);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function Products({ address }: { address: string }) {
   }
   return (
     <Fragment>
+      <div className="hidden">{doNothing}</div>      
       <Navbar />
       <>
         <div className="grid grid-cols-3 justify-center m-5">
@@ -31,7 +33,7 @@ export default function Products({ address }: { address: string }) {
           <div className="justify-self-end"></div>
         </div>
         <div className="flex justify-center m-4">
-          <ProductsDataRender products={products} />
+          <ProductsDataRender products={products} setDoNothing={setDoNothing}/>
         </div>
       </>
       )
@@ -39,28 +41,23 @@ export default function Products({ address }: { address: string }) {
   );
 }
 
-function ProductsDataRender({ products }: any) {
-  const [doNothing, setDoNothing] = useState<any>();
+function ProductsDataRender({ products, setDoNothing }: any) {
   return (
     <>
       <div className="grid gap-4 justify-center md:justify-start grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products ?
           products.map((product: any) => (
             <Product
-              props={
-                {
-                  title: product.title,
-                  description: product.description,
-                  imageUrl: product.imageUrl,
-                  price: product.price,
-                  stock: product.stock,
-                  name: product.name,
-                  id: product.id,
-                  label: product.label,
-                }
-              }
               key={product.id}
-              rerender={(val: any) => {setDoNothing(val)}}
+              title={product.title}
+              description={product.description}
+              imageUrl={product.imageUrl}
+              price={product.price}
+              stock={product.stock}
+              name={product.name}
+              id={product.id}
+              label={product.label}
+              setDoNothing = {setDoNothing}
             />
           )) : <div className="text-2xl text-center">No Products Found</div>}
           <AddNewProduct />

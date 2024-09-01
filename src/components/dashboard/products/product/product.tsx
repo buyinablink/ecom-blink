@@ -27,9 +27,19 @@ interface ProductProps {
   stock: string;
   id: string;
   label: string;
+  setDoNothing: any;
 }
-export default function Product({props, rerender}: {props: ProductProps, rerender: any}) {
-  const [productData, setProductData] = useState(props);
+export default function Product(props: ProductProps) {
+  const [productData, setProductData] = useState({
+    name: props.name,
+    title: props.title,
+    description: props.description,
+    imageUrl: props.imageUrl,
+    price: props.price,
+    stock: props.stock,
+    id: props.id,
+    label: props.label,
+  });
   const [showTrashIcon, setShowTrashIcon] = useState(false);
   const [trashHovered, setTrashHovered] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -59,7 +69,7 @@ export default function Product({props, rerender}: {props: ProductProps, rerende
     console.log(res)
     res.err ? toast.error(res.msg) : toast.success(res.msg)
     setLoading(false)
-    rerender(Math.random())
+    props.setDoNothing(Math.random())
   }
   const confirmDeleteModal = () => setDeleteModal(prevState => !prevState);
   return (
