@@ -1,0 +1,131 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Seller {
+  id           String    @id @default(uuid()) @unique
+  username     String    @unique
+  walletAddress String   @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[] 
+  blink        SellerBlink?
+  blinkCreated Boolean @default(false)
+  Payments ProductPurchaseTransaction[]
+
+  @@index([walletAddress])
+  @@index([username])
+}
+
+model Product {
+  id          String   @id @default(uuid()) 
+  name        String
+  title       String
+  description String
+  label       String
+  imageUrl    String
+  price       String //price
+  stock       String //stock limit
+  sellerId    String   
+  seller      Seller   @relation(fields: [sellerId], references: [walletAddress]) 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchase  ProductPurchaseTransaction[]
+  order     Order[]
+
+  @@index([sellerId])
+
+}
+
+
+model Order{
+  id    String   @id @default(uuid()) //36 we also any seed more 30
+  name  String
+  city  String
+  state String
+  dropOfAddress String
+  ZipCode       String
+  orderstatus    OrderStatus @default(PROCESSING)
+  buyerWallet  String 
+  user        User   @relation(fields: [buyerWallet],references: [userWallet])
+
+  productId  String
+  product   Product  @relation(fields: [productId],references: [id])
+}
+
+model SellerBlink {
+  id          String  @id @default(uuid())
+  title       String
+  icon        String  
+  description String
+  label String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sellerWallet  String    @unique
+  user        Seller    @relation(fields: [sellerWallet], references: [walletAddress])
+
+  @@index([sellerWallet],name:"user_wallet_address")
+  @@index([id])
+}
+
+model ProductPurchaseTransaction{
+  id String @id @default(uuid())
+  amount String 
+  referenceKey String //finding the transaction based on this
+  transasctionId  String? //if purchase successfull let store the transasctionId
+  status Status  @default(PENDING)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sellerWallet String
+  seller  Seller  @relation(fields: [sellerWallet],references: [walletAddress])
+
+  productId  String
+  product Product @relation(fields: [productId],references: [id])
+
+  orderedWallet String //who made the purchase
+  user       User    @relation(fields: [orderedWallet],references: [userWallet])
+  
+  @@index([referenceKey])
+}
+
+model User{
+  id String @id @default(uuid())
+  userWallet String @unique
+  name String 
+  orders  Order[]
+  emailAddress   String  @unique
+
+  purchases     ProductPurchaseTransaction[]
+
+  @@index([userWallet])
+}
+
+
+
+enum Status {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
