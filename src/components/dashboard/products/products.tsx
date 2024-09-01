@@ -40,21 +40,27 @@ export default function Products({ address }: { address: string }) {
 }
 
 function ProductsDataRender({ products }: any) {
+  const [doNothing, setDoNothing] = useState<any>();
   return (
     <>
       <div className="grid gap-4 justify-center md:justify-start grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products ?
           products.map((product: any) => (
             <Product
+              props={
+                {
+                  title: product.title,
+                  description: product.description,
+                  imageUrl: product.imageUrl,
+                  price: product.price,
+                  stock: product.stock,
+                  name: product.name,
+                  id: product.id,
+                  label: product.label,
+                }
+              }
               key={product.id}
-              title={product.title}
-              description={product.description}
-              imageUrl={product.imageUrl}
-              price={product.price}
-              stock={product.stock}
-              name={product.name}
-              id={product.id}
-              label={product.label}
+              rerender={(val: any) => {setDoNothing(val)}}
             />
           )) : <div className="text-2xl text-center">No Products Found</div>}
           <AddNewProduct />

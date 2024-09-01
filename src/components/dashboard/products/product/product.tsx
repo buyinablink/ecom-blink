@@ -9,12 +9,16 @@ import {
 } from "@/components/ui/card";
 import React, { Fragment, useState } from "react";
 import PopoverButton from "./popoverbtn";
-import { Plus } from "lucide-react";
+import { LucideTrash2, Plus } from "lucide-react";
 import Modal from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import ProductForm from "./product-form";
+import { deleteProduct } from "@/lib/action";
+import { set } from "@coral-xyz/anchor/dist/cjs/utils/features";
+import { toast } from "sonner";
+import Loading from "@/components/Loading";
 
-export default function Product(props: {
+interface ProductProps {
   name: string;
   title: string;
   description: string;
@@ -23,16 +27,58 @@ export default function Product(props: {
   stock: string;
   id: string;
   label: string;
-}) {
+}
+export default function Product({props, rerender}: {props: ProductProps, rerender: any}) {
   const [productData, setProductData] = useState(props);
+  const [showTrashIcon, setShowTrashIcon] = useState(false);
+  const [trashHovered, setTrashHovered] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const updateProductData = (newData: Partial<typeof props>) => {
     setProductData((prevData) => ({ ...prevData, ...newData }));
   };
-
+  const showTrash = () => {
+    setShowTrashIcon(true);
+  };
+  const hideTrash = () => {
+    setShowTrashIcon(false);
+  }
+  const hoveredOnTrash = () => {
+    setTrashHovered(prevState => !prevState);
+  }
+  const deleteProduct1 = async () => {
+    console.log("delete product");
+    setDeleteModal(true);
+    console.log("something happened")
+  }
+  const deleteProduct2 = async () => {
+    setLoading(true)
+    console.log("delete confirmed")
+    const res = await deleteProduct(productData.id)
+    console.log(res)
+    res.err ? toast.error(res.msg) : toast.success(res.msg)
+    setLoading(false)
+    rerender(Math.random())
+  }
+  const confirmDeleteModal = () => setDeleteModal(prevState => !prevState);
   return (
-    <Card className="w-[250px] h-[530px]">
+    <Card className="w-[250px] h-[530px] hover:bg-[#f8fafc] relative" onMouseEnter={showTrash} onMouseLeave={hideTrash}>
+      {
+        loading && <Loading />
+      }
       <CardHeader className="h-[120px]">
+      {
+        showTrashIcon && 
+        <div onClick={deleteProduct1}>
+          <LucideTrash2 
+            size={24} 
+            className="absolute top-2 z-20 right-2 cursor-pointer" 
+            onMouseEnter={hoveredOnTrash} 
+            onMouseLeave={hoveredOnTrash} 
+            color={trashHovered ? "red" : "black"}/>
+        </div>
+      }
         <CardTitle>{productData.title}</CardTitle>
         <CardDescription>{productData.name}</CardDescription>
       </CardHeader>
@@ -49,6 +95,13 @@ export default function Product(props: {
           updateProductData={updateProductData}
         />
       </CardContent>
+      <Modal isOpen={deleteModal} onClose={confirmDeleteModal}>
+        <Button onClick={() => {
+          confirmDeleteModal();
+          deleteProduct2();
+        }}>Yes</Button>
+        <Button onClick={confirmDeleteModal}>No</Button>
+      </Modal>
     </Card>
   );
 }
