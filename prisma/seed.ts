@@ -1,4 +1,9 @@
+import { subDays } from "date-fns";
 import prisma from "./db";
+
+import { Product } from "@prisma/client";
+
+let productid: Product;
 
 const addSeller = async () => {
   const sellerData = [
@@ -49,7 +54,7 @@ const addProduct = async () => {
   ];
   console.log("inside add product");
   try {
-    await prisma.product.create({
+    productid = await prisma.product.create({
       data: {
         imageUrl:
           "https://capsapparel.com/cdn/shop/products/teddy-bear-sweater-black.jpg?v=1689860780&width=800",
@@ -129,8 +134,58 @@ const createSellerBlink = async () => {
   }
 };
 
+function getRandomOrderCount(): number {
+  const min = 1;
+  const max = 10;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function seedOrders() {
+  for (let i = 0; i < 7; i++) {
+    const date = subDays(new Date(), i);
+    const orderCount = getRandomOrderCount();
+
+    for (let j = 0; j < orderCount; j++) {
+      await prisma.order.create({
+        data: {
+          name: `Order ${i * 10 + j + 1}`,
+          city: "CityName",
+          state: "StateName",
+          dropOfAddress: "123 Main St",
+          ZipCode: "12345",
+          orderstatus: "PROCESSING",
+          buyerWallet: "3RSq8oquiYftGCcepmUoofxo73Nh7zTWtKVeHet1fzFt",
+          productId: productid.id,
+          sellerId: "DLgacSweX6fmAbnzwoFnVwcuGRMwFvdCzzwhrXuE5pPc",
+          createdAt: date,
+        },
+      });
+    }
+  }
+
+  console.log("Orders seeded successfully!");
+}
+
+async function createUser() {
+  try {
+    const user = "3RSq8oquiYftGCcepmUoofxo73Nh7zTWtKVeHet1fzFt";
+
+    await prisma.user.create({
+      data: {
+        emailAddress: "asdads2@",
+        name: "joey",
+        userWallet: user,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 (async () => {
   await addSeller();
   await addProduct();
   await createSellerBlink();
+  await createUser();
+  await seedOrders();
 })();

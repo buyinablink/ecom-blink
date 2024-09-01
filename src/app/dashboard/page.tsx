@@ -13,5 +13,11 @@ export default function Dashboard() {
     }
   }, [connected, publicKey, router]);
 
-  return <>{publicKey && connected && <DashboardComp />}</>;
+  return (
+    <>
+      {publicKey && connected && (
+        <DashboardComp address={publicKey.toString()} />
+      )}
+    </>
+  );
 }

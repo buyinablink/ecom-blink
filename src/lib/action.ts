@@ -8,6 +8,14 @@ import {
   UserInput,
 } from "./validation";
 
+import {
+  subDays,
+  startOfDay,
+  endOfDay,
+  format,
+  eachDayOfInterval,
+} from "date-fns";
+
 export const createSellerProduct = async (
   sellerWalet: string,
   productData: ProductInput
@@ -433,3 +441,49 @@ export const getOrderBySeller = async (sellerId: string) => {
     };
   }
 };
+
+export async function getSellerOrdersOf7Days(sellerAddress: string) {
+  // Get today's date and the date 7 days ago
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 6); // 7 days including today
+
+  // Initialize the result object with zero counts for each of the last 7 days
+  const result: { [key: string]: number } = {};
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
+
+  days.forEach((day) => {
+    const formattedDate = format(day, "yyyy-MM-dd");
+    result[formattedDate] = 0;
+  });
+
+  // Fetch orders for the specific seller within the last 7 days
+  const orders = await prisma.order.findMany({
+    where: {
+      sellerId: sellerAddress,
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+  });
+
+  // Update the result object with the count of orders per day
+  let totalOrders = 0;
+  orders.forEach((order) => {
+    const day = format(order.createdAt, "yyyy-MM-dd");
+    result[day] += 1;
+    totalOrders += 1;
+  });
+
+  // Convert result object to the desired format
+  const formattedResult = Object.entries(result).map(([date, count]) => ({
+    date,
+    orders: count,
+  }));
+
+  return {
+    totalOrders,
+    dailyCounts: formattedResult,
+  };
+}

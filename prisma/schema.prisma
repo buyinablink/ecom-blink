@@ -18,6 +18,7 @@ model Seller {
   blink        SellerBlink?
   blinkCreated Boolean @default(false)
   Payments ProductPurchaseTransaction[]
+  order   Order[]
 
   @@index([walletAddress])
   @@index([username])
@@ -58,6 +59,12 @@ model Order{
 
   productId  String
   product   Product  @relation(fields: [productId],references: [id])
+
+  sellerId String
+  seller   Seller   @relation(fields: [sellerId],references: [walletAddress])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model SellerBlink {
