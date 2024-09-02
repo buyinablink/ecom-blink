@@ -5,9 +5,24 @@ import Navbar from "../../navbar/Navbar";
 import Loading from "@/components/Loading";
 import { useGetSellerProducts } from "@/hooks/useGetUser";
 
+export interface ProductsType {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  label: string;
+  imageUrl: string;
+  price: string;
+  stock: string;
+  sellerId: string;
+}
+
+export type SetProductsType = React.Dispatch<
+  React.SetStateAction<ProductsType[]>
+>;
+
 export default function Products({ address }: { address: string }) {
-  const [products, setProducts] = useState<any>(null);
-  const [doNothing, setDoNothing] = useState<any>(null);
+  const [products, setProducts] = useState<ProductsType[]>([]);
   const { data, isLoading } = useGetSellerProducts(address);
 
   useEffect(() => {
@@ -24,7 +39,6 @@ export default function Products({ address }: { address: string }) {
   console.log(products);
   return (
     <Fragment>
-      <div className="hidden">{doNothing}</div>
       <Navbar />
       <>
         <div className="grid grid-cols-3 justify-center m-5">
@@ -35,11 +49,7 @@ export default function Products({ address }: { address: string }) {
           <div className="justify-self-end"></div>
         </div>
         <div className="flex justify-center m-4">
-          <ProductsDataRender
-            products={products}
-            setDoNothing={setDoNothing}
-            setProducts={setProducts}
-          />
+          <ProductsDataRender products={products} setProducts={setProducts} />
         </div>
       </>
       )
@@ -47,7 +57,13 @@ export default function Products({ address }: { address: string }) {
   );
 }
 
-function ProductsDataRender({ products, setDoNothing, setProducts }: any) {
+function ProductsDataRender({
+  products,
+  setProducts,
+}: {
+  products: ProductsType[];
+  setProducts: SetProductsType;
+}) {
   return (
     <>
       <div className="grid gap-4 justify-center md:justify-start grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -63,14 +79,13 @@ function ProductsDataRender({ products, setDoNothing, setProducts }: any) {
               name={product.name}
               id={product.id}
               label={product.label}
-              setDoNothing={setDoNothing}
               setProducts={setProducts}
             />
           ))
         ) : (
           <div className="text-2xl text-center">No Products Found</div>
         )}
-        <AddNewProduct />
+        <AddNewProduct setProducts={setProducts} />
       </div>
     </>
   );

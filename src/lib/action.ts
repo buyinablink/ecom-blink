@@ -8,13 +8,7 @@ import {
   UserInput,
 } from "./validation";
 
-import {
-  subDays,
-  startOfDay,
-  endOfDay,
-  format,
-  eachDayOfInterval,
-} from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 
 export const createSellerProduct = async (
   sellerWalet: string,
@@ -29,7 +23,9 @@ export const createSellerProduct = async (
 
     if (!seller) {
       return {
-        message: "seller not present cant add the product",
+        msg: "seller not present cant add the product",
+        err: true,
+        product: null,
       };
     }
 
@@ -42,13 +38,14 @@ export const createSellerProduct = async (
 
     return {
       msg: "product created sucessfully",
-      product,
       err: false,
+      product,
     };
   } catch (error) {
     return {
       msg: "something went wrong while creating product",
       err: true,
+      product: null,
     };
   }
 };
@@ -443,18 +440,29 @@ export const getOrderBySeller = async (sellerId: string) => {
 };
 export const deleteProduct = async (productId: string) => {
   try {
-    await prisma.product.delete({
+    let data = await prisma.product.delete({
       where: {
         id: productId,
       },
     });
+
+    console.log(data);
     return {
       msg: "product deleted successfully",
       err: false,
     };
   } catch (error) {
+    console.log(error);
+    //@ts-ignore
+    if (error.code == "P2003") {
+      return {
+        msg: "Not able to delete because there are orders associated with this product",
+        err: true,
+      };
+    }
+
     return {
-      msg: "Something went wrong",
+      msg: "something went wrong",
       err: true,
     };
   }

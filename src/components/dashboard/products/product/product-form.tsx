@@ -11,7 +11,14 @@ import { Progress } from "@/components/ui/progress";
 import { createSellerProduct } from "@/lib/action";
 import { ProductInput } from "@/lib/validation";
 import { useWallet } from "@solana/wallet-adapter-react";
-export default function ProductForm({ closeModal }: any) {
+import { SetProductsType } from "../products";
+export default function ProductForm({
+  closeModal,
+  setProducts,
+}: {
+  closeModal: any;
+  setProducts: SetProductsType;
+}) {
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -23,7 +30,6 @@ export default function ProductForm({ closeModal }: any) {
   const { edgestore } = useEdgeStore();
   const [url, setUrl] = useState("");
   const { publicKey } = useWallet();
-  const [doNothing, setDoNothing] = useState(false);
 
   async function addProduct(e: any) {
     e.preventDefault();
@@ -40,11 +46,16 @@ export default function ProductForm({ closeModal }: any) {
       stock: stock.toString(),
     };
     const res = await createSellerProduct(publicKey.toString(), productData);
+
+    if (res.err || !res.product) {
+      toast.warning(res.msg);
+      return;
+    }
+    setProducts((prev) => [...prev, res.product]);
     console.log(res);
-    setDoNothing(!doNothing);
   }
   return (
-    <div className="p-3">
+    <div className="p-3 ">
       <form
         className=" p-4 flex flex-col gap-2"
         onSubmit={(e) => addProduct(e)}

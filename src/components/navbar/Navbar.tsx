@@ -14,7 +14,7 @@ export default function Navbar() {
           router.push("/dashboard");
         }}
       >
-        Ecommerece blink
+        Buy in a Blink
       </span>
       <div className="flex p-2 gap-4 items-center">
         <WalletMultiButtonFix />

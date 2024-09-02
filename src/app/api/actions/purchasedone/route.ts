@@ -193,12 +193,11 @@ export const POST = async (req: Request) => {
 
         const payload: CompletedAction = {
           type: "completed",
-          title: `purchase was successful! login with your address in our website to check out the orders`,
-          icon: "https://avatars.githubusercontent.com/u/35608259?s=200&v=4",
+          title: `Order status`,
+          icon: `https://robohash.org/${body.account}?set=set4`,
           label: "Complete!",
           description:
-            `You have now completed an action chain! ` +
-            `Here was the signature from the last action's transaction: ${signature} `,
+            "purchase was successful! You'll get an email with all the orders details, If you've any queries email us at hello@support.xyz",
         };
 
         return Response.json(payload, {
@@ -210,12 +209,10 @@ export const POST = async (req: Request) => {
 
       const payload: CompletedAction = {
         type: "completed",
-        title: `purchase failed! contact us at help@support.us`,
-        icon: "https://avatars.githubusercontent.com/u/35608259?s=200&v=4",
+        title: `Order Status`,
+        icon: `https://robohash.org/${body.account}?set=set4`,
         label: "Complete!",
-        description:
-          `You have now completed an action chain! ` +
-          `Here was the signature from the last action's transaction: ${signature} `,
+        description: "purchase failed! contact us at help@support.us",
       };
 
       return Response.json(payload, {

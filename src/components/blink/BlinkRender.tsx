@@ -30,7 +30,7 @@ export default function BlinkExample({
       </CardHeader>
       <CardContent className="text-center space-y-2">
         <p className="text-sm text-left text-muted-foreground">
-          iamjoey.xyz <InfoIcon className="inline-block w-4 h-4" />
+          buyinablink.xyz <InfoIcon className="inline-block w-4 h-4" />
         </p>
         <h2 className="text-xl font-bold text-left">{title}</h2>
         <p className="text-muted-foreground text-left">{description}</p>

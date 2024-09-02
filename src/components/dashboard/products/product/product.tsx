@@ -14,9 +14,9 @@ import Modal from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import ProductForm from "./product-form";
 import { deleteProduct } from "@/lib/action";
-import { set } from "@coral-xyz/anchor/dist/cjs/utils/features";
 import { toast } from "sonner";
 import Loading from "@/components/Loading";
+import { SetProductsType } from "../products";
 
 interface ProductProps {
   name: string;
@@ -27,8 +27,7 @@ interface ProductProps {
   stock: string;
   id: string;
   label: string;
-  setDoNothing: any;
-  setProducts: () => void;
+  setProducts: SetProductsType;
 }
 export default function Product(props: ProductProps) {
   const [productData, setProductData] = useState({
@@ -69,24 +68,23 @@ export default function Product(props: ProductProps) {
     const res = await deleteProduct(productData.id);
     console.log(res);
     res.err ? toast.error(res.msg) : toast.success(res.msg);
+    if (!res.err) {
+      //@ts-ignore
+      props.setProducts((prevState: any[]) => {
+        return prevState.filter((product) => product.id !== productData.id);
+      });
+    }
     setLoading(false);
-
-    //@ts-ignore
-    props.setProducts((prevState: any[]) => {
-      return prevState.filter((product) => product.id !== productData.id);
-    });
-
-    props.setDoNothing(Math.random());
   };
   const confirmDeleteModal = () => setDeleteModal((prevState) => !prevState);
   return (
     <Card
-      className="w-[250px] h-[530px] hover:bg-[#f8fafc] relative"
+      className="w-[250px] h-[530px] hover:bg-[#f8fafc] relative "
       onMouseEnter={showTrash}
       onMouseLeave={hideTrash}
     >
       {loading && <Loading />}
-      <CardHeader className="h-[120px] overflow-y-scroll">
+      <CardHeader className="h-[120px] overflow-y-hidden">
         {showTrashIcon && (
           <div onClick={deleteProduct1}>
             <LucideTrash2
@@ -102,8 +100,8 @@ export default function Product(props: ProductProps) {
         <CardDescription>{productData.name}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] overflow-y-scroll">
-          <img src={productData.imageUrl} alt={productData.name} width={250}/>
+        <div className="h-[300px] overflow-y-hidden">
+          <img src={productData.imageUrl} alt={productData.name} width={250} />
           <CardDescription>{productData.label}</CardDescription>
           <CardDescription>{productData.description}</CardDescription>
         </div>
@@ -130,13 +128,14 @@ export default function Product(props: ProductProps) {
     </Card>
   );
 }
-export function AddNewProduct() {
+export function AddNewProduct({
+  setProducts,
+}: {
+  setProducts: SetProductsType;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-  const addNewProduct = () => {
-    openModal();
-  };
   return (
     <Fragment>
       <Card
@@ -147,7 +146,7 @@ export function AddNewProduct() {
       </Card>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <h1>Add New Product</h1>
-        <ProductForm closeModal={closeModal} />
+        <ProductForm closeModal={closeModal} setProducts={setProducts} />
       </Modal>
     </Fragment>
   );
