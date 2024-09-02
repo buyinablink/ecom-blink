@@ -201,7 +201,7 @@ export const chechSellerPresent = async (address: string) => {
       return {
         msg: "username inpur required",
         err: true,
-        user: false,
+        user: null,
       };
     }
     const data = await prisma.seller.findUnique({
@@ -213,7 +213,7 @@ export const chechSellerPresent = async (address: string) => {
     if (!data) {
       return {
         msg: "seller not present",
-        user: false,
+        user: null,
         err: false,
       };
     }

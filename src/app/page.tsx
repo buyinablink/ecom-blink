@@ -21,11 +21,14 @@ export default function Home() {
         const value = await fetchUsername(publicKey.toString());
         console.log(value);
         if (!value.err && !value.user) {
+          localStorage.setItem("username", "");
           router.push("/username");
           toast.info("create username");
           return;
         }
         if (!value.err && value.user) {
+          const username = value.user.username;
+          localStorage.setItem("username", username);
           router.push("/dashboard");
           toast.info("logged in successfully");
           return;

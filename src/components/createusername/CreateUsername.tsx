@@ -46,6 +46,7 @@ export default function CreateUsername({ publickey }: { publickey: string }) {
         toast.warning(response.msg);
         return;
       }
+      localStorage.setItem("username", data.username);
       router.push("/dashboard");
     } catch (error) {}
   };

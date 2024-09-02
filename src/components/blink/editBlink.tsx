@@ -207,6 +207,8 @@ function EditBlink({ address }: { address: string }) {
           imageUrl={url}
           title={title}
           label={label}
+          created={true}
+          address={address}
         />
       </div>
     </div>

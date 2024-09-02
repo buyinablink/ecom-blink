@@ -61,7 +61,7 @@ export function CreateBlinkComp({ address }: { address: string }) {
       toast.warning(response.msg);
       return;
     }
-    router.push("/dashboard");
+    router.push("/dashboard/blink");
     toast.success("successfully created your blink");
   };
 
@@ -186,6 +186,8 @@ export function CreateBlinkComp({ address }: { address: string }) {
           imageUrl={url}
           title={title}
           label={label}
+          created={false}
+          address={address}
         />
       </div>
     </div>

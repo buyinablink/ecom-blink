@@ -102,7 +102,6 @@ export default function Product(props: ProductProps) {
       <CardContent>
         <div className="h-[300px] overflow-y-hidden">
           <img src={productData.imageUrl} alt={productData.name} width={250} />
-          <CardDescription>{productData.label}</CardDescription>
           <CardDescription>{productData.description}</CardDescription>
         </div>
         <p>Price: {productData.price}</p>

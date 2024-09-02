@@ -15,7 +15,7 @@ export default function DashboardComp({ address }: { address: string }) {
     return <Loading />;
   }
 
-  if (!data?.data?.blinkCreated) {
+  if (data && !data.err && data.data && !data.data.blinkCreated) {
     router.push("/dashboard/blink");
     return null;
   }
