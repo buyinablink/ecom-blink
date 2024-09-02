@@ -123,6 +123,8 @@ export default function PopoverButton({
             <div className="grid grid-cols-3 items-center gap-4">
               <Label htmlFor="height">Price</Label>
               <Input
+                type="number"
+                step="any"
                 id="height"
                 value={productData.price}
                 className="col-span-2 h-8"

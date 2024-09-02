@@ -86,7 +86,7 @@ export default function Product(props: ProductProps) {
       onMouseLeave={hideTrash}
     >
       {loading && <Loading />}
-      <CardHeader className="h-[120px]">
+      <CardHeader className="h-[120px] overflow-y-scroll">
         {showTrashIcon && (
           <div onClick={deleteProduct1}>
             <LucideTrash2

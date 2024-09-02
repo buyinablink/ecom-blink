@@ -123,6 +123,7 @@ export default function ProductForm({ closeModal }: any) {
           <Input
             required
             type="number"
+            step="any"
             id="price"
             onChange={(e) => setPrice(Number(e.target.value))}
           />
