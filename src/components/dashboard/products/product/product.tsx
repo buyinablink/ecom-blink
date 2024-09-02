@@ -84,7 +84,7 @@ export default function Product(props: ProductProps) {
       onMouseLeave={hideTrash}
     >
       {loading && <Loading />}
-      <CardHeader className="h-[120px] overflow-y-hidden">
+      <CardHeader className="h-[105px] overflow-y-auto pb-0 mb-0">
         {showTrashIcon && (
           <div onClick={deleteProduct1}>
             <LucideTrash2
@@ -100,7 +100,7 @@ export default function Product(props: ProductProps) {
         <CardDescription>{productData.name}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] overflow-y-hidden">
+        <div className="h-[300px] overflow-y-auto">
           <img src={productData.imageUrl} alt={productData.name} width={250} />
           <CardDescription>{productData.description}</CardDescription>
         </div>
