@@ -1,6 +1,7 @@
 "use client";
+
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -15,54 +16,82 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", orders: 186 },
-  { month: "February", orders: 305 },
-  { month: "March", orders: 237 },
-  { month: "April", orders: 73 },
-  { month: "May", orders: 209 },
-  { month: "June", orders: 214 },
-  { month: "July", orders: 214 },
-];
+
 const chartConfig = {
   orders: {
-    label: "orders",
+    label: "Orders",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
-export default function Chart() {
+
+interface DailyOrderCount {
+  date: string;
+  orders: number;
+}
+
+interface SellerOrderSummary {
+  totalOrders: number;
+  dailyCounts: DailyOrderCount[];
+}
+
+export default function Chart({ data }: { data: SellerOrderSummary }) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Bar Chart</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Order Summary</CardTitle>
+        <CardDescription>Last 7 Days</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[400px] w-full">
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="orders" fill="var(--color-orders)" radius={8} />
-          </BarChart>
-        </ChartContainer>
+      <CardContent className="h-[400px]">
+        {data.totalOrders > 0 ? (
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <BarChart accessibilityLayer data={data.dailyCounts}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={formatDate}
+              />
+              <YAxis
+                dataKey="orders"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+              />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <Bar dataKey="orders" fill="var(--color-orders)" radius={8} />
+            </BarChart>
+          </ChartContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-center">
+            <p className="text-lg text-muted-foreground">
+              There are no orders in the last 7 days.
+            </p>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
+        {data.totalOrders > 0 ? (
+          <>
+            <div className="flex gap-2 font-medium leading-none">
+              Total Orders: {data.totalOrders}{" "}
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Showing daily order counts for the last 7 days
+            </div>
+          </>
+        ) : (
+          <div className="leading-none text-muted-foreground">
+            Check back later for order statistics
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

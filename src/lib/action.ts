@@ -8,6 +8,14 @@ import {
   UserInput,
 } from "./validation";
 
+import {
+  subDays,
+  startOfDay,
+  endOfDay,
+  format,
+  eachDayOfInterval,
+} from "date-fns";
+
 export const createSellerProduct = async (
   sellerWalet: string,
   productData: ProductInput
@@ -448,6 +456,100 @@ export const deleteProduct = async (productId: string) => {
     return {
       msg: "Something went wrong",
       err: true,
+    };
+  }
+};
+
+export async function getSellerOrdersOf7Days(sellerAddress: string) {
+  // Get today's date and the date 7 days ago
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 6); // 7 days including today
+
+  // Initialize the result object with zero counts for each of the last 7 days
+  const result: { [key: string]: { count: number; totalPrice: number } } = {};
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
+
+  days.forEach((day) => {
+    const formattedDate = format(day, "yyyy-MM-dd");
+    result[formattedDate] = { count: 0, totalPrice: 0 };
+  });
+
+  // Fetch orders for the specific seller within the last 7 days
+  const orders = await prisma.order.findMany({
+    where: {
+      sellerId: sellerAddress,
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      product: true,
+    },
+  });
+
+  // Process each order to update counts and total prices
+  orders.forEach((order) => {
+    const orderDate = format(order.createdAt, "yyyy-MM-dd"); // Format date to YYYY-MM-DD
+    const productPrice = parseFloat(order.product.price); // Parse the product price
+
+    if (!result[orderDate]) {
+      result[orderDate] = { count: 0, totalPrice: 0 };
+    }
+
+    // Increment the order count and total price for the respective day
+    result[orderDate].count += 1;
+    result[orderDate].totalPrice += productPrice;
+  });
+
+  // Calculate the total number of orders and the final total price for the entire week
+  const totalOrders = Object.values(result).reduce(
+    (sum, day) => sum + day.count,
+    0
+  );
+  const finalTotalPrice = Object.values(result).reduce(
+    (sum, day) => sum + day.totalPrice,
+    0
+  );
+
+  // Convert result object to the desired format for daily counts
+  const formattedResult = Object.entries(result).map(([date, data]) => ({
+    date,
+    orders: data.count,
+    totalPrice: data.totalPrice,
+  }));
+
+  return {
+    totalOrders,
+    dailyCounts: formattedResult,
+    finalTotalPrice,
+  };
+}
+
+export async function getRecentOrders(address: string) {
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        sellerId: address,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 5,
+    });
+
+    return {
+      msg: "Orders fetched successfully",
+      err: false,
+      data: orders,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      msg: "Error occurred",
+      err: true,
+      data: null,
     };
   }
 }

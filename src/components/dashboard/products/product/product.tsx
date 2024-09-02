@@ -28,6 +28,7 @@ interface ProductProps {
   id: string;
   label: string;
   setDoNothing: any;
+  setProducts: () => void;
 }
 export default function Product(props: ProductProps) {
   const [productData, setProductData] = useState({
@@ -43,7 +44,7 @@ export default function Product(props: ProductProps) {
   const [showTrashIcon, setShowTrashIcon] = useState(false);
   const [trashHovered, setTrashHovered] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const updateProductData = (newData: Partial<typeof props>) => {
     setProductData((prevData) => ({ ...prevData, ...newData }));
@@ -53,42 +54,50 @@ export default function Product(props: ProductProps) {
   };
   const hideTrash = () => {
     setShowTrashIcon(false);
-  }
+  };
   const hoveredOnTrash = () => {
-    setTrashHovered(prevState => !prevState);
-  }
+    setTrashHovered((prevState) => !prevState);
+  };
   const deleteProduct1 = async () => {
     console.log("delete product");
     setDeleteModal(true);
-    console.log("something happened")
-  }
+    console.log("something happened");
+  };
   const deleteProduct2 = async () => {
-    setLoading(true)
-    console.log("delete confirmed")
-    const res = await deleteProduct(productData.id)
-    console.log(res)
-    res.err ? toast.error(res.msg) : toast.success(res.msg)
-    setLoading(false)
-    props.setDoNothing(Math.random())
-  }
-  const confirmDeleteModal = () => setDeleteModal(prevState => !prevState);
+    setLoading(true);
+    console.log("delete confirmed");
+    const res = await deleteProduct(productData.id);
+    console.log(res);
+    res.err ? toast.error(res.msg) : toast.success(res.msg);
+    setLoading(false);
+
+    //@ts-ignore
+    props.setProducts((prevState: any[]) => {
+      return prevState.filter((product) => product.id !== productData.id);
+    });
+
+    props.setDoNothing(Math.random());
+  };
+  const confirmDeleteModal = () => setDeleteModal((prevState) => !prevState);
   return (
-    <Card className="w-[250px] h-[530px] hover:bg-[#f8fafc] relative" onMouseEnter={showTrash} onMouseLeave={hideTrash}>
-      {
-        loading && <Loading />
-      }
+    <Card
+      className="w-[250px] h-[530px] hover:bg-[#f8fafc] relative"
+      onMouseEnter={showTrash}
+      onMouseLeave={hideTrash}
+    >
+      {loading && <Loading />}
       <CardHeader className="h-[120px]">
-      {
-        showTrashIcon && 
-        <div onClick={deleteProduct1}>
-          <LucideTrash2 
-            size={24} 
-            className="absolute top-2 z-20 right-2 cursor-pointer" 
-            onMouseEnter={hoveredOnTrash} 
-            onMouseLeave={hoveredOnTrash} 
-            color={trashHovered ? "red" : "black"}/>
-        </div>
-      }
+        {showTrashIcon && (
+          <div onClick={deleteProduct1}>
+            <LucideTrash2
+              size={24}
+              className="absolute top-2 z-20 right-2 cursor-pointer"
+              onMouseEnter={hoveredOnTrash}
+              onMouseLeave={hoveredOnTrash}
+              color={trashHovered ? "red" : "black"}
+            />
+          </div>
+        )}
         <CardTitle>{productData.title}</CardTitle>
         <CardDescription>{productData.name}</CardDescription>
       </CardHeader>
@@ -106,11 +115,17 @@ export default function Product(props: ProductProps) {
         />
       </CardContent>
       <Modal isOpen={deleteModal} onClose={confirmDeleteModal}>
-        <Button onClick={() => {
-          confirmDeleteModal();
-          deleteProduct2();
-        }}>Yes</Button>
-        <Button onClick={confirmDeleteModal}>No</Button>
+        <div className="p-3 flex justify-around">
+          <Button
+            onClick={() => {
+              confirmDeleteModal();
+              deleteProduct2();
+            }}
+          >
+            Yes
+          </Button>
+          <Button onClick={confirmDeleteModal}>No</Button>
+        </div>
       </Modal>
     </Card>
   );
@@ -120,17 +135,19 @@ export function AddNewProduct() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const addNewProduct = () => {
-    console.log("Add new product");
     openModal();
   };
   return (
     <Fragment>
-      <Card onClick={openModal} className="flex justify-center content-center w-[250px] h-[100%] hover:bg-[#f8fafc] cursor-pointer">
-            <Plus size={48} className="self-center"/>
+      <Card
+        onClick={openModal}
+        className="flex justify-center content-center w-[250px] h-[100%] hover:bg-[#f8fafc] cursor-pointer"
+      >
+        <Plus size={48} className="self-center" />
       </Card>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <h1>Add New Product</h1>
-        <ProductForm closeModal={closeModal}/>
+        <ProductForm closeModal={closeModal} />
       </Modal>
     </Fragment>
   );

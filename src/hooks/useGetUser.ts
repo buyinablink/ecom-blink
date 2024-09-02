@@ -1,4 +1,10 @@
-import { getAllProducts, getSellerBlink, getTheUser } from "@/lib/action";
+import {
+  getAllProducts,
+  getRecentOrders,
+  getSellerBlink,
+  getSellerOrdersOf7Days,
+  getTheUser,
+} from "@/lib/action";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetSellerDetails = (publicKey: string) => {
@@ -29,6 +35,28 @@ export const useGetSellerProducts = (address: string) => {
     queryFn: async () => {
       const data = await getAllProducts(address);
       return data;
+    },
+    enabled: !!address,
+  });
+};
+
+export const useGetSellerLast7DaysOrders = (address: string) => {
+  return useQuery({
+    queryKey: ["seller-last-7-orders", address],
+    queryFn: async () => {
+      const orders = await getSellerOrdersOf7Days(address);
+      return orders;
+    },
+    enabled: !!address,
+  });
+};
+
+export const useGetRecentOrders = (address: string) => {
+  return useQuery({
+    queryKey: ["seller-recent-orders", address],
+    queryFn: async () => {
+      const orders = await getRecentOrders(address);
+      return orders.data;
     },
     enabled: !!address,
   });

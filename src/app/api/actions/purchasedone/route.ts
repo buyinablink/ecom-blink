@@ -154,7 +154,18 @@ export const POST = async (req: Request) => {
             },
           });
         }
+        const productDetails = await prisma.product.findUnique({
+          where: {
+            id: productid,
+          },
+          include: {
+            seller: true,
+          },
+        });
 
+        if (!productDetails) {
+          return;
+        }
         await prisma.order.create({
           data: {
             name,
@@ -166,14 +177,10 @@ export const POST = async (req: Request) => {
             productId: productid,
             orderstatus: "PROCESSING",
             id: uuid,
+            sellerId: productDetails.sellerId,
           },
         });
 
-        const productDetails = await prisma.product.findUnique({
-          where: {
-            id: productid,
-          },
-        });
         let updatedStock = Number(productDetails?.stock) - 1;
         await prisma.product.update({
           where: {
