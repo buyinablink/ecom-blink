@@ -33,7 +33,7 @@ import Loading from "../Loading";
 
 function DashBoardRender({ address }: { address: string }) {
   const { data, isLoading } = useGetSellerLast7DaysOrders(address);
-  console.log(data);
+  console.log(process.env.DATABASE_URL);
   if (isLoading) {
     return <Loading />;
   }

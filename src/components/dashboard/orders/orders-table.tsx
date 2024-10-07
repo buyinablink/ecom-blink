@@ -26,17 +26,22 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@radix-ui/react-popover";
-import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  useAnchorWallet,
+  useConnection,
+  useWallet,
+} from "@solana/wallet-adapter-react";
 import { getOrderBySeller, updateOrderStatus } from "@/lib/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { OrderStatus, User, Product } from "@prisma/client";
-import {AnchorProvider, Program} from "@coral-xyz/anchor"
-import IDL from "../../../../anchor/idl.json"
-import {EcomEscrow} from "../../../../anchor/type"
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import IDL from "../../../../anchor/idl.json";
+import { EcomEscrow } from "../../../../anchor/type";
 import { PublicKey } from "@solana/web3.js";
 import { trimUuidToHalf } from "@/lib/helpers";
-const idl = JSON.parse(JSON.stringify(IDL))
+import { DeliveryDetailsDialog } from "../DeliveryDetailsDialog";
+const idl = JSON.parse(JSON.stringify(IDL));
 
 interface Order {
   id: string;
@@ -61,13 +66,13 @@ export default function Orders() {
     sortOrder: "desc",
   });
   const [orders, setOrders] = useState<Order[]>([]);
-
   const { connected, publicKey } = useWallet();
-  const { connection } = useConnection()
-  const anchorWallet = useAnchorWallet()
-  const provider = anchorWallet && new AnchorProvider(connection, anchorWallet)
-  const program = new Program<EcomEscrow>(idl as EcomEscrow, provider)
-
+  const { connection } = useConnection();
+  const anchorWallet = useAnchorWallet();
+  const provider = anchorWallet && new AnchorProvider(connection, anchorWallet);
+  const program = new Program<EcomEscrow>(idl as EcomEscrow, provider);
+  const [isDeliveryDialogOpen, setIsDeliveryDialogOpen] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   useEffect(() => {
     const fetchOrders = async () => {
       if (!publicKey) return;
@@ -130,7 +135,11 @@ export default function Orders() {
     }
     return filtered;
   }, [orders, filters, search]);
-
+  const handleDeliveryConfirm = () => {
+    if (currentOrderId) {
+      updateOrderStatus1(currentOrderId, OrderStatus.DELIVERED);
+    }
+  };
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center gap-4">
@@ -272,27 +281,9 @@ export default function Orders() {
                             <Button
                               className="bg-transparent hover:bg-transparent"
                               onClick={() => {
-                                updateOrderStatus1(
-                                  order.id,
-                                  OrderStatus.DELIVERED
-                                // TODOOOO HERE
-                              );
-                              (async() => {
-                                if(publicKey) {
-                                  let message = trimUuidToHalf(order.id)
-                                  const order1 = PublicKey.findProgramAddressSync([Buffer.from("order"), new PublicKey(order.user.userWallet).toBuffer(), Buffer.from(message)], program.programId)[0]
-                                  const orderVault = PublicKey.findProgramAddressSync([Buffer.from("orderVault"), order1.toBuffer()], program.programId)[0]
-                                  const tx = await program.methods.finalizeOrder(message)
-                                    .accountsPartial({
-                                      reciever: new PublicKey(order.user.userWallet),
-                                      user: publicKey,
-                                      orderVault
-                                    })
-                                    .rpc()
-                                }
-                              })()
-                              }
-                              }
+                                setCurrentOrderId(order.id);
+                                setIsDeliveryDialogOpen(true);
+                              }}
                             >
                               <Badge variant="default">
                                 {OrderStatus.DELIVERED}
@@ -321,6 +312,13 @@ export default function Orders() {
           </TableBody>
         </Table>
       </div>
+      <DeliveryDetailsDialog
+        isOpen={isDeliveryDialogOpen}
+        onClose={() => setIsDeliveryDialogOpen(false)}
+        onConfirm={handleDeliveryConfirm}
+        currentOrderId={currentOrderId!}
+        updateOrderStatus1={updateOrderStatus1}
+      />
     </div>
   );
 }
