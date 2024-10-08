@@ -1,0 +1,101 @@
+.info-section {
+    min-height: 22rem;
+    height: fit-content;
+    background: #2B303B;
+}
+
+.bg {
+    background: #232323;
+}
+
+.small-info-header {
+    width: 100%;
+    height: fit-content;
+    /* background-color: pink; */
+    margin-bottom: 0.5rem;
+    flex-wrap: nowrap;
+}
+
+.small-info-ico {
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-right: 1rem;
+}
+
+.small-info-header h3 {
+    position: relative;
+    font-size: 20px;
+    top: -1px;
+}
+
+.small-info-desc {
+    color: #808389;
+    font-size: 16.4px;
+}
+
+.medium-info-desc {
+    color: #808389;
+    font-size: 18px;
+}
+
+/* h1 */
+.highlight-text {
+    color: #CACFD8;
+}
+
+.feature-section {
+    height: 15rem;
+}
+
+.layout-main {
+    max-width: 100%;
+    height: fit-content;
+    margin: auto;
+}
+
+.list-text {
+    position: relative;
+    left: 10px;
+    color: #808389;
+}
+
+.restrictions-1 {
+    max-width: 1152px;
+    margin: auto;
+    
+}
+
+.testimonial-block {
+    background-color: #2B303B !important;
+}
+
+.testimonial-text-cont {
+    color: #808389 !important;
+}
+
+/* */
+.link-text {
+    color: #2D47EB;
+}
+
+.foot-links li a {
+    color: #CACFD8CC;
+
+}
+
+.nav-links a {
+    color: #CACFD8CC;
+}
+
+@media (max-width: 1023px) {
+    .testimonials-section {
+        padding-top: 1.6rem;
+        padding-bottom: 1.4rem;
+    }
+
+    .login-hero {
+        margin-top: 1.5rem;
+    }
+
+
+} 
